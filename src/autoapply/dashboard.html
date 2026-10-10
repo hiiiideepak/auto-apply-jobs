@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Auto apply</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f1ea;
+      --card: #fffdf8;
+      --ink: #1c1917;
+      --muted: #57534e;
+      --line: #e4ddd2;
+      --accent: #0f766e;
+      --accent-ink: #f0fdfa;
+      --bad: #b91c1c;
+      --warn: #a16207;
+      --ok: #047857;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1917;
+        --card: #292524;
+        --ink: #fafaf9;
+        --muted: #a8a29e;
+        --line: #44403c;
+        --accent: #2dd4bf;
+        --accent-ink: #042f2e;
+        --bad: #fca5a5;
+        --warn: #fcd34d;
+        --ok: #6ee7b7;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.45 ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+    header { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--line); background: var(--card); position: sticky; top: 0; }
+    header h1 { font-size: 18px; margin: 0; }
+    nav { display: flex; gap: 8px; }
+    nav a { color: var(--ink); text-decoration: none; padding: 6px 10px; border-radius: 999px; }
+    nav a.active { background: var(--ink); color: var(--bg); }
+    .actions { display: flex; gap: 8px; align-items: center; }
+    button, .btn { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+    button.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    .muted { color: var(--muted); }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-width: 140px; }
+    .card b { display: block; font-size: 22px; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+    a { color: var(--accent); }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+    .filters button.active { border-color: var(--accent); }
+    .status { font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: .03em; }
+    .status.submitted { color: var(--ok); }
+    .status.needs_review, .status.manual { color: var(--warn); }
+    .status.failed { color: var(--bad); }
+    section { display: none; }
+    section.active { display: block; }
+    form.grid, .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+    input, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+    textarea { min-height: 88px; resize: vertical; }
+    .block { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 14px 0; }
+    .block h3 { margin: 0 0 10px; font-size: 16px; }
+    .inline { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+    .check { flex-direction: row; align-items: center; gap: 8px; color: var(--ink); }
+    .choices { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+    .item { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; }
+    #run-status { min-height: 1.2em; }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Auto apply</h1>
+  </div>
+  <nav>
+    <a href="/" data-nav="/">Applied</a>
+    <a href="/companies" data-nav="/companies">Companies</a>
+    <a href="/questions" data-nav="/questions">Questions</a>
+    <a href="/profile" data-nav="/profile">Profile</a>
+  </nav>
+  <div class="actions">
+    <span id="run-status" class="muted"></span>
+    <button id="discover" type="button">Discover only</button>
+    <button id="run-agent" class="primary" type="button">Run agent</button>
+  </div>
+</header>
+<main>
+  <section id="page-applied">
+    <p class="muted" id="applied-lead"></p>
+    <div class="row" id="stats"></div>
+    <p class="muted" id="last-run"></p>
+    <div class="filters" id="filters">
+      <button type="button" data-status="" class="active">All</button>
+      <button type="button" data-status="submitted">Submitted</button>
+      <button type="button" data-status="needs_review">Needs review</button>
+      <button type="button" data-status="manual">Manual</button>
+      <button type="button" data-status="failed">Failed</button>
+    </div>
+    <table>
+      <thead><tr><th>When</th><th>Status</th><th>Role</th><th>Company</th><th>Location</th><th>Note</th></tr></thead>
+      <tbody id="apps"></tbody>
+    </table>
+  </section>
+
+  <section id="page-companies">
+    <h2>Companies on the next run</h2>
+    <p class="muted">These Greenhouse boards are searched every cycle. Add a board token, or paste a Greenhouse job URL. Remove a company to keep its unsent roles out of the queue.</p>
+    <div class="inline">
+      <label>Board token or URL
+        <input id="company-token" placeholder="gitlab" autocomplete="off" />
+      </label>
+      <button id="add-company" type="button">Add company</button>
+    </div>
+    <p id="company-msg" class="muted"></p>
+    <table>
+      <thead><tr><th>Company</th><th>Board</th><th>Open roles found</th><th></th></tr></thead>
+      <tbody id="company-list"></tbody>
+    </table>
+  </section>
+
+  <section id="page-questions">
+    <h2>Questions to answer</h2>
+    <p class="muted">These showed up on an application the agent could not finish. Type an answer once. The next run uses it whenever a form asks the same thing, and a role comes back into the queue once every question blocking it has an answer.</p>
+    <p id="question-msg" class="muted"></p>
+    <div id="open-questions"></div>
+    <h2>Saved answers</h2>
+    <p class="muted">Edit any of these if a later form should say something different.</p>
+    <div id="saved-answers"></div>
+  </section>
+
+  <section id="page-profile">
+    <h2>Application answers</h2>
+    <p class="muted">Forms are filled from this profile. Saving updates the file used by the next run.</p>
+    <div id="profile-scalars"></div>
+    <div id="profile-lists"></div>
+    <p>
+      <button id="save-profile" class="primary" type="button">Save profile</button>
+      <span id="profile-msg" class="muted"></span>
+    </p>
+  </section>
+</main>
+<script>
+const $ = (sel) => document.querySelector(sel);
+const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+}[ch]));
+function safeUrl(url) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") return parsed.href;
+  } catch (err) { /* ignore */ }
+  return "";
+}
+
+let applications = [];
+let statusFilter = "";
+let profile = null;
+
+const SCALAR_GROUPS = [
+  ["Contact", [
+    ["name", "Full name"],
+    ["first_name", "First name"],
+    ["last_name", "Last name"],
+    ["email", "Email"],
+    ["phone", "Phone"],
+    ["country", "Country"],
+    ["city", "City"],
+    ["region", "Region"],
+    ["postal_code", "Postal code"],
+    ["location_label", "Location written on forms"],
+    ["country_code", "Country code"],
+    ["latitude", "Latitude", "number"],
+    ["longitude", "Longitude", "number"],
+  ]],
+  ["Work and pay", [
+    ["current_company", "Current company"],
+    ["current_title", "Current title"],
+    ["current_ctc_label", "Current CTC"],
+    ["current_ctc_inr", "Current CTC in INR", "number"],
+    ["expected_ctc_label", "Expected CTC"],
+    ["expected_ctc_inr", "Expected CTC in INR", "number"],
+    ["notice_period_label", "Notice period"],
+    ["notice_period_days", "Notice period in days", "number"],
+    ["years_experience", "Years of experience", "number"],
+    ["primary_languages", "Primary languages"],
+  ]],
+  ["Links", [
+    ["linkedin", "LinkedIn"],
+    ["github", "GitHub"],
+    ["portfolio", "Portfolio"],
+    ["resume_path", "Resume file path"],
+  ]],
+  ["Narrative", [
+    ["work_authorization", "Work authorization", "area"],
+    ["education_summary", "Education", "area"],
+    ["summary", "Summary", "area"],
+    ["open_source_links", "Open source links", "area"],
+  ]],
+  ["Yes or no answers", [
+    ["willing_to_relocate", "Willing to relocate", "bool"],
+    ["open_to_remote", "Open to remote", "bool"],
+    ["employment_restrictions", "Employment restrictions", "bool"],
+    ["outside_business_activities", "Outside business activities", "bool"],
+  ]],
+  ["Run limits", [
+    ["daily_target", "Daily application cap", "number"],
+    ["per_run_limit", "Applications per run", "number"],
+    ["max_per_company_per_day", "Max per company per day", "number"],
+    ["run_interval_hours", "Hours between automatic runs", "number"],
+  ]],
+];
+
+function showPage() {
+  const known = ["/companies", "/profile", "/questions"];
+  const path = known.includes(location.pathname) ? location.pathname : "/";
+  document.querySelectorAll("section").forEach((node) => node.classList.remove("active"));
+  document.querySelectorAll("nav a").forEach((node) => {
+    node.classList.toggle("active", node.dataset.nav === path);
+  });
+  if (path === "/companies") {
+    $("#page-companies").classList.add("active");
+    loadCompanies();
+  } else if (path === "/profile") {
+    $("#page-profile").classList.add("active");
+    loadProfile();
+  } else if (path === "/questions") {
+    $("#page-questions").classList.add("active");
+    loadQuestions();
+  } else {
+    $("#page-applied").classList.add("active");
+    loadApplied();
+  }
+  if (path !== "/questions") {
+    fetch("/api/questions").then((res) => res.json()).then((body) => {
+      openQuestions = body.open || [];
+      const link = document.querySelector('a[data-nav="/questions"]');
+      if (link) link.textContent = openQuestions.length ? `Questions (${openQuestions.length})` : "Questions";
+    }).catch(() => {});
+  }
+}
+
+function renderApps() {
+  const rows = applications.filter((row) => !statusFilter || row.status === statusFilter);
+  $("#apps").innerHTML = rows.map((row) => {
+    const href = safeUrl(row.url);
+    const title = href ? `<a href="${esc(href)}" target="_blank" rel="noreferrer">${esc(row.title)}</a>` : esc(row.title);
+    return `<tr>
+      <td>${esc(row.applied_at || "")}</td>
+      <td class="status ${esc(row.status)}">${esc(row.status)}</td>
+      <td>${title}</td>
+      <td>${esc(row.company)}</td>
+      <td>${esc(row.location)}</td>
+      <td>${esc(row.error || "")}</td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="6">No applications${statusFilter ? " with that status" : " yet"}.</td></tr>`;
+}
+
+async function loadApplied() {
+  const stats = await (await fetch("/api/stats")).json();
+  const jobs = stats.jobs || {};
+  $("#applied-lead").textContent = `${stats.name} · target ${stats.daily_target} submissions / day`;
+  const cards = [
+    ["Submitted today", `${stats.submitted_today} / ${stats.daily_target}`],
+    ["Needs review", jobs.needs_review || 0],
+    ["Manual", jobs.manual || 0],
+    ["Failed", jobs.failed || 0],
+    ["Ready", jobs.new || 0],
+  ];
+  $("#stats").innerHTML = cards.map(([label, value]) => `<div class="card"><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join("");
+  const run = stats.last_run;
+  $("#last-run").textContent = run
+    ? `Last run ${run.finished_at || run.started_at || ""}: discovered ${run.discovered ?? 0}, submitted ${run.submitted ?? 0}, review ${run.needs_review ?? 0}, failed ${run.failed ?? 0}. ${run.notes || ""}`
+    : "No runs yet.";
+  applications = await (await fetch("/api/applications?limit=200")).json();
+  renderApps();
+}
+
+async function loadCompanies() {
+  const body = await (await fetch("/api/companies")).json();
+  const rows = body.companies || [];
+  $("#company-list").innerHTML = rows.map((row) => `<tr>
+    <td>${esc(row.company)}</td>
+    <td><code>${esc(row.token)}</code></td>
+    <td>${esc(row.open_roles)}</td>
+    <td><button type="button" data-remove="${esc(row.token)}">Remove</button></td>
+  </tr>`).join("") || `<tr><td colspan="4">No companies yet. Add a Greenhouse board token.</td></tr>`;
+}
+
+function fieldControl(key, label, kind) {
+  const value = profile[key];
+  if (kind === "bool") {
+    return `<label class="check"><input data-key="${esc(key)}" type="checkbox" ${value ? "checked" : ""} /> ${esc(label)}</label>`;
+  }
+  if (kind === "area") {
+    return `<label style="grid-column: 1 / -1">${esc(label)}<textarea data-key="${esc(key)}">${esc(value || "")}</textarea></label>`;
+  }
+  const type = kind === "number" ? "number" : "text";
+  const step = kind === "number" && String(key).includes("itude") ? ' step="any"' : "";
+  return `<label>${esc(label)}<input data-key="${esc(key)}" type="${type}"${step} value="${esc(value ?? "")}" /></label>`;
+}
+
+function renderScalars() {
+  $("#profile-scalars").innerHTML = SCALAR_GROUPS.map(([title, fields]) => `
+    <div class="block">
+      <h3>${esc(title)}</h3>
+      <div class="grid">${fields.map(([key, label, kind]) => fieldControl(key, label, kind)).join("")}</div>
+    </div>
+  `).join("");
+}
+
+function renderLists() {
+  const languages = profile.languages || [];
+  const skips = profile.skip_companies || [];
+  const employers = profile.employers || [];
+  const skills = Object.entries(profile.skills || {});
+  const knowledge = profile.knowledge || [];
+  $("#profile-lists").innerHTML = `
+    <div class="block">
+      <h3>Languages</h3>
+      <div class="inline">
+        <label>Language<input id="new-language" /></label>
+        <button type="button" id="add-language">Add</button>
+      </div>
+      ${languages.map((item, index) => `<div class="item inline"><span>${esc(item)}</span><button type="button" data-del-language="${index}">Remove</button></div>`).join("")}
+    </div>
+    <div class="block">
+      <h3>Employers</h3>
+      <p class="muted">Used when a form asks whether you have worked at the company before.</p>
+      ${employers.map((item, index) => `<div class="item grid">
+        <label>Name<input data-employer-name="${index}" value="${esc(item.name)}" /></label>
+        <label class="check"><input data-employer-current="${index}" type="checkbox" ${item.current ? "checked" : ""} /> Current employer</label>
+        <button type="button" data-del-employer="${index}">Remove</button>
+      </div>`).join("")}
+      <p><button type="button" id="add-employer">Add employer</button></p>
+    </div>
+    <div class="block">
+      <h3>Skills</h3>
+      <p class="muted">Years used when a form asks for experience in a language or tool.</p>
+      ${skills.map(([name, years]) => `<div class="item inline">
+        <label>Skill<input data-skill-name="${esc(name)}" value="${esc(name)}" /></label>
+        <label>Years<input data-skill-years="${esc(name)}" type="number" value="${esc(years)}" /></label>
+        <button type="button" data-del-skill="${esc(name)}">Remove</button>
+      </div>`).join("")}
+      <div class="inline">
+        <label>Skill<input id="new-skill" /></label>
+        <label>Years<input id="new-skill-years" type="number" value="1" /></label>
+        <button type="button" id="add-skill">Add skill</button>
+      </div>
+    </div>
+    <div class="block">
+      <h3>Resume passages</h3>
+      <p class="muted">The agent retrieves these before it writes a cover letter. Only these facts may be claimed.</p>
+      ${knowledge.map((item, index) => `<div class="item">
+        <label>Title<input data-knowledge-title="${index}" value="${esc(item.title)}" /></label>
+        <label>Text<textarea data-knowledge-text="${index}">${esc(item.text)}</textarea></label>
+        <button type="button" data-del-knowledge="${index}">Remove</button>
+      </div>`).join("")}
+      <p><button type="button" id="add-knowledge">Add passage</button></p>
+    </div>
+    <div class="block">
+      <h3>Never apply</h3>
+      <div class="inline">
+        <label>Company<input id="new-skip" placeholder="Deel" /></label>
+        <button type="button" id="add-skip">Add</button>
+      </div>
+      ${skips.map((item, index) => `<div class="item inline"><span>${esc(item)}</span><button type="button" data-del-skip="${index}">Remove</button></div>`).join("")}
+    </div>
+  `;
+}
+
+function readScalars() {
+  document.querySelectorAll("[data-key]").forEach((el) => {
+    if (el.type === "checkbox") profile[el.dataset.key] = el.checked;
+    else if (el.type === "number") profile[el.dataset.key] = el.value === "" ? null : Number(el.value);
+    else profile[el.dataset.key] = el.value;
+  });
+}
+
+function readListsFromDom() {
+  document.querySelectorAll("[data-employer-name]").forEach((el) => {
+    profile.employers[el.dataset.employerName].name = el.value;
+  });
+  document.querySelectorAll("[data-employer-current]").forEach((el) => {
+    profile.employers[el.dataset.employerCurrent].current = el.checked;
+  });
+  document.querySelectorAll("[data-knowledge-title]").forEach((el) => {
+    profile.knowledge[el.dataset.knowledgeTitle].title = el.value;
+  });
+  document.querySelectorAll("[data-knowledge-text]").forEach((el) => {
+    profile.knowledge[el.dataset.knowledgeText].text = el.value;
+  });
+  const skills = {};
+  document.querySelectorAll("[data-skill-name]").forEach((el) => {
+    const previous = el.dataset.skillName;
+    const yearsEl = document.querySelector(`[data-skill-years="${CSS.escape(previous)}"]`);
+    const name = el.value.trim().toLowerCase();
+    if (name) skills[name] = Number(yearsEl ? yearsEl.value : 0);
+  });
+  profile.skills = skills;
+}
+
+async function loadProfile() {
+  if (!profile) profile = await (await fetch("/api/profile")).json();
+  profile.languages = profile.languages || [];
+  profile.employers = profile.employers || [];
+  profile.skills = profile.skills || {};
+  profile.knowledge = profile.knowledge || [];
+  profile.skip_companies = profile.skip_companies || [];
+  renderScalars();
+  renderLists();
+}
+
+async function saveProfile() {
+  readScalars();
+  readListsFromDom();
+  const msg = $("#profile-msg");
+  msg.textContent = "Saving…";
+  const res = await fetch("/api/profile", {
+    method: "PUT",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(profile),
+  });
+  const body = await res.json();
+  if (!res.ok) {
+    msg.textContent = body.detail || body.error || "Could not save";
+    return;
+  }
+  profile = body;
+  renderScalars();
+  renderLists();
+  msg.textContent = "Saved. The next run uses this information.";
+}
+
+async function trigger(dry) {
+  const status = $("#run-status");
+  const run = $("#run-agent");
+  const discover = $("#discover");
+  run.disabled = true;
+  discover.disabled = true;
+  status.textContent = dry ? "Discovering roles…" : "Agent is running. This can take several minutes.";
+  try {
+    const path = dry ? "/api/runs?dry_run=true" : "/api/runs";
+    const res = await fetch(path, {method: "POST"});
+    const body = await res.json();
+    status.textContent = body.error || `Submitted ${body.submitted || 0}, review ${body.needs_review || 0}, failed ${body.failed || 0}.`;
+  } catch (err) {
+    status.textContent = "The run request failed.";
+  }
+  run.disabled = false;
+  discover.disabled = false;
+  if (location.pathname === "/companies") await loadCompanies();
+  else if (location.pathname !== "/profile") await loadApplied();
+}
+
+document.body.addEventListener("click", async (event) => {
+  const remove = event.target.closest("[data-remove]");
+  if (remove) {
+    const token = remove.dataset.remove;
+    const res = await fetch("/api/companies/" + encodeURIComponent(token), {method: "DELETE"});
+    const body = await res.json();
+    $("#company-msg").textContent = res.ok ? `Removed ${token}.` : (body.detail || "Could not remove");
+    await loadCompanies();
+    return;
+  }
+  const statusBtn = event.target.closest("#filters button");
+  if (statusBtn) {
+    statusFilter = statusBtn.dataset.status;
+    document.querySelectorAll("#filters button").forEach((node) => node.classList.toggle("active", node === statusBtn));
+    renderApps();
+  }
+});
+
+$("#add-company").onclick = async () => {
+  const token = $("#company-token").value.trim();
+  const res = await fetch("/api/companies", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({token}),
+  });
+  const body = await res.json();
+  $("#company-msg").textContent = res.ok ? `Added ${body.added}.` : (body.detail || "Could not add");
+  if (res.ok) $("#company-token").value = "";
+  await loadCompanies();
+};
+
+$("#profile-lists").addEventListener("click", (event) => {
+  const target = event.target;
+  if (!target.closest("button")) return;
+  readListsFromDom();
+  if (target.id === "add-language") {
+    const value = $("#new-language").value.trim();
+    if (value) profile.languages.push(value);
+    renderLists();
+  } else if (target.dataset.delLanguage != null && target.dataset.delLanguage !== "") {
+    profile.languages.splice(Number(target.dataset.delLanguage), 1);
+    renderLists();
+  } else if (target.id === "add-employer") {
+    readListsFromDom();
+    profile.employers.push({name: "", current: false});
+    renderLists();
+  } else if (target.dataset.delEmployer != null) {
+    readListsFromDom();
+    profile.employers.splice(Number(target.dataset.delEmployer), 1);
+    renderLists();
+  } else if (target.id === "add-skill") {
+    readListsFromDom();
+    const name = $("#new-skill").value.trim().toLowerCase();
+    if (name) profile.skills[name] = Number($("#new-skill-years").value || 1);
+    renderLists();
+  } else if (target.dataset.delSkill) {
+    readListsFromDom();
+    delete profile.skills[target.dataset.delSkill];
+    renderLists();
+  } else if (target.id === "add-knowledge") {
+    readListsFromDom();
+    profile.knowledge.push({title: "", text: ""});
+    renderLists();
+  } else if (target.dataset.delKnowledge != null) {
+    readListsFromDom();
+    profile.knowledge.splice(Number(target.dataset.delKnowledge), 1);
+    renderLists();
+  } else if (target.id === "add-skip") {
+    const value = $("#new-skip").value.trim();
+    if (value) profile.skip_companies.push(value);
+    renderLists();
+  } else if (target.dataset.delSkip != null) {
+    profile.skip_companies.splice(Number(target.dataset.delSkip), 1);
+    renderLists();
+  }
+});
+
+let openQuestions = [];
+let savedQuestions = [];
+
+function askedLine(asked) {
+  return (asked || [])
+    .slice(0, 4)
+    .map((item) => [item.company, item.title].filter(Boolean).join(" · "))
+    .filter(Boolean)
+    .join("; ");
+}
+
+function answerField(item, index, kind) {
+  const saved = kind === "saved" ? esc(item.answer || "") : "";
+  const options = item.options || [];
+  if ((item.field_type === "select" || item.field_type === "multi") && options.length) {
+    if (options.length > 8) {
+      const choices = options.map((option) => `<option value="${esc(option)}">${esc(option)}</option>`).join("");
+      const multiple = item.field_type === "multi" ? " multiple size=\"6\"" : "";
+      const blank = item.field_type === "multi" ? "" : `<option value="">Choose an answer</option>`;
+      return `<select data-${kind}="${index}"${multiple}>${blank}${choices}</select>`;
+    }
+    const type = item.field_type === "multi" ? "checkbox" : "radio";
+    const inputs = options.map((option) => `
+      <label class="check"><input type="${type}" name="${kind}-${index}" value="${esc(option)}" /> ${esc(option)}</label>
+    `).join("");
+    return `<div class="choices" data-${kind}="${index}" data-multi="${item.field_type === "multi" ? "1" : "0"}">${inputs}</div>`;
+  }
+  return `<textarea data-${kind}="${index}" rows="3">${saved}</textarea>`;
+}
+
+function readAnswer(kind, index) {
+  const box = document.querySelector(`[data-${kind}="${index}"]`);
+  if (!box) return "";
+  if (box.classList.contains("choices")) {
+    const picked = [...box.querySelectorAll("input:checked")].map((input) => input.value);
+    return box.dataset.multi === "1" ? picked.join(" | ") : (picked[0] || "");
+  }
+  if (box.tagName === "SELECT" && box.multiple) {
+    return [...box.selectedOptions].map((option) => option.value).filter(Boolean).join(" | ");
+  }
+  return box.value;
+}
+
+function renderQuestions() {
+  const link = document.querySelector('a[data-nav="/questions"]');
+  if (link) link.textContent = openQuestions.length ? `Questions (${openQuestions.length})` : "Questions";
+  $("#open-questions").innerHTML = openQuestions.map((item, index) => `
+    <div class="block">
+      <h3>${esc(item.label)}</h3>
+      <p class="muted">${esc(askedLine(item.asked) || "Asked on a recent application")}</p>
+      ${item.field_type === "file" ? `<p class="muted">This form wants a file. A note saved here is kept for you, and it does not upload a file.</p>` : ""}
+      ${answerField(item, index, "open")}
+      <p><button type="button" data-save-open="${index}">Save answer</button></p>
+    </div>
+  `).join("") || `<p class="muted">Nothing is waiting. When a form asks for something the agent does not know, it shows up here.</p>`;
+  $("#saved-answers").innerHTML = savedQuestions.map((item, index) => `
+    <div class="block">
+      <h3>${esc(item.question)}</h3>
+      <textarea data-saved="${index}" rows="3">${esc(item.answer || "")}</textarea>
+      <p><button type="button" data-save-saved="${index}">Update answer</button></p>
+    </div>
+  `).join("") || `<p class="muted">No saved answers yet.</p>`;
+}
+
+async function loadQuestions() {
+  const body = await (await fetch("/api/questions")).json();
+  openQuestions = body.open || [];
+  savedQuestions = body.saved || [];
+  renderQuestions();
+}
+
+async function saveQuestion(question, answer) {
+  const msg = $("#question-msg");
+  msg.textContent = "Saving…";
+  const res = await fetch("/api/questions", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({question, answer}),
+  });
+  const body = await res.json();
+  if (!res.ok) {
+    msg.textContent = body.detail || "Could not save that answer";
+    return;
+  }
+  openQuestions = body.open || [];
+  savedQuestions = body.saved || [];
+  const released = body.released_jobs || 0;
+  msg.textContent = released
+    ? `Saved. ${released} role${released === 1 ? "" : "s"} can be tried again on the next run.`
+    : "Saved. The next run will use this answer.";
+  renderQuestions();
+}
+
+$("#open-questions").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-save-open]");
+  if (!button) return;
+  const index = Number(button.dataset.saveOpen);
+  const item = openQuestions[index];
+  if (item) saveQuestion(item.label, readAnswer("open", index));
+});
+
+$("#saved-answers").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-save-saved]");
+  if (!button) return;
+  const index = Number(button.dataset.saveSaved);
+  const item = savedQuestions[index];
+  if (item) saveQuestion(item.question, readAnswer("saved", index));
+});
+
+$("#save-profile").onclick = saveProfile;
+$("#run-agent").onclick = () => trigger(false);
+$("#discover").onclick = () => trigger(true);
+window.addEventListener("popstate", showPage);
+document.querySelectorAll("nav a").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    history.pushState(null, "", link.getAttribute("href"));
+    showPage();
+  });
+});
+showPage();
+</script>
+</body>
+</html>

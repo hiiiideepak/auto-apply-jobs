@@ -1,0 +1,221 @@
+name: Deepak Bharti
+first_name: Deepak
+last_name: Bharti
+email: deepakbharti823@gmail.com
+phone: +91 7275036250
+country: India
+city: Gurugram
+region: Haryana
+postal_code: '122001'
+location_label: Gurugram, Haryana, India
+latitude: 28.4595
+longitude: 77.0266
+country_code: IN
+current_company: Deel
+current_title: Software Engineer
+current_ctc_inr: 5000000
+current_ctc_label: 50 LPA
+expected_ctc_inr: 6500000
+expected_ctc_label: 65 LPA
+notice_period_days: 15
+notice_period_label: 15 days
+years_experience: 7
+linkedin: https://www.linkedin.com/in/hiiideepak/
+github: https://github.com/hiiiideepak
+portfolio: https://deepakbharti823.pythonanywhere.com/
+resume_path: /Users/deepakbharti/Documents/resume/DeepakBharti.pdf
+work_authorization: Indian citizen. Authorized to work in India without sponsorship.
+willing_to_relocate: true
+open_to_remote: true
+employment_restrictions: false
+outside_business_activities: false
+languages:
+- English
+- Hindi
+education_summary: B.Tech, Computer Science, NIT Allahabad (MNNIT), 2015-2019, GPA 7.0/10
+summary: 'Senior software engineer with 7+ years building backend systems, APIs, and data
+  pipelines in TypeScript/Node.js and Python. Currently at Deel on the tax integrations team.
+  Previously a senior engineer at Payoneer, leading 4-5 engineers on payments-adjacent products.
+  Also ships LLM features: LLM APIs, AI agents, tool calling, and RAG.
+
+  '
+knowledge:
+- title: AI and LLM
+  text: LLM APIs, AI agents, tool calling / function calling, and RAG. Uses Claude and Cursor
+    for feature development, debugging, refactoring, and production incident triage. Built
+    ReadyMadeReels in 2026 with AI agents.
+- title: Deel
+  text: Software Engineer at Deel since August 2024, remote from India. Founding engineer
+    on the Tax Integrations team. Owns the data pipeline that ingests, transforms, and normalizes
+    filing data to and from MasterTax across US tax jurisdictions for payroll. On a 24x7 support
+    rotation for production payroll incidents.
+- title: Payoneer
+  text: Senior Software Engineer at Payoneer from June 2022 to October 2023. Led 4-5 engineers.
+    Owned architecture for a security deposit system that reduced fraud exposure, plus multi-contract
+    support and salary revision.
+- title: Founder
+  text: Founded a B2B grocery inventory and delivery platform for restaurants from November
+    2023 to April 2024. Shipped the MVP in 25 days, including backend APIs, authentication,
+    and AWS deployment. Code is on GitHub as grocery-delivery-app.
+- title: Collegedunia
+  text: Full-stack engineer at Collegedunia from June 2019 to May 2021 in Gurgaon. Rewrote
+    Prepp.in APIs from PHP to Node.js. Automated HR onboarding and finance ITR document collection.
+- title: Education and projects
+  text: B.Tech in Computer Science from NIT Allahabad (MNNIT), 2015-2019, GPA 7.0/10. Gold
+    medal for automated cricket video summarization. Prayag heritage portal with a 5-person
+    team and the district administration. GitHub hiiiideepak. Portfolio deepakbharti823.pythonanywhere.com.
+    LinkedIn in/hiiideepak.
+primary_languages: TypeScript (Node.js) and Python
+skills:
+  python: 4
+  typescript: 6
+  javascript: 6
+  node: 6
+  nestjs: 5
+  express: 6
+  java: 3
+  react: 3
+  postgresql: 4
+  postgres: 4
+  mongodb: 4
+  mysql: 3
+  aws: 4
+  docker: 4
+  graphql: 3
+  ruby: 1
+  rails: 1
+  php: 1
+  golang: 2
+  go: 2
+  rust: 1
+  scala: 1
+  kotlin: 1
+  swift: 1
+employers:
+- name: Deel
+  current: true
+- name: Payoneer
+  current: false
+- name: Collegedunia
+  current: false
+skip_companies:
+- Deel
+open_source_links: 'https://github.com/hiiiideepak
+
+  https://github.com/hiiiideepak/grocery-delivery-app
+
+  https://github.com/sangamcity/prayag-heritage-portal
+
+  '
+daily_target: 80
+per_run_limit: 20
+max_per_company_per_day: 5
+run_interval_hours: 4
+saved_answers:
+- question: Are you a close relative of a government official (i.e., child/step-child, spouse/partner,
+    parent/guardian, aunt/uncle, first cousin, in-law)?
+  answer: No, I am not a relative of a government official.
+- question: Are you authorized to work in the location(s) you selected in your previous response?
+  answer: 'Yes'
+- question: Are you legally authorized to work for any employer in this country?
+  answer: 'Yes'
+- question: Are you currently residing in this country?
+  answer: 'Yes'
+- question: Are you legally authorized to work in the country in which you are applying?
+  answer: 'Yes'
+- question: Are you open to working in a night shift from our Bengaluru office?
+  answer: 'No'
+- question: Are you well versed with SQL and reconciliation design?
+  answer: 'Yes'
+- question: By checking this box, I confirm I have read, reviewed and understood the guidelines
+    outlined in the Candidate AI Responsible Use Policy. I affirm that all the information
+    and materials I submit throughout my application and candidacy will reflect my own work
+    and experience.
+  answer: Acknowledge
+- question: Current Company
+  answer: Deel
+- question: Current Title
+  answer: Software Engineer
+- question: Current firm you're part of?
+  answer: Deel
+- question: Describe the largest distributed system/platform you personally designed or technically
+    led (include scale, ownership, and impact)
+  answer: tax-integrations microservice
+- question: Do you have experience building or developing customer-facing tools or applications
+    (B2C)? If yes, please elaborate a bit on it.
+  answer: 'Yes'
+- question: Do you have experience in Integrating with any external systems (Systems like
+    Toast Web, Toast IQ, Financial systems, Care tools or CCAS platform or anything similar)?
+  answer: 'No'
+- question: Do you have experience in Microservices?
+  answer: 'Yes'
+- question: Do you have experience in automating the Customer care workflows? (iPaaS, translating
+    business processes into automation)
+  answer: 'Yes'
+- question: Do you have experience in building with LLMs in production environments?
+  answer: 'Yes'
+- question: Do you have experience in working in Distributed systems?
+  answer: 'Yes'
+- question: Do you have experience working in API Lifecycle management?
+  answer: 'Yes'
+- question: Do you opt-in to receive WhatsApp messages from Stripe Recruiting?
+  answer: 'No'
+- question: Have you leveraged AI to handle workflows that are too complex?
+  answer: 'Yes'
+- question: Have you personally driven architecture or technical direction across multiple
+    teams or products (beyond your immediate feature team)?
+  answer: 'Yes'
+- question: How did you hear about Twilio?
+  answer: LinkedIn
+- question: How did you hear about this job?
+  answer: LinkedIn
+- question: How many projects have you led that involved building distribution systems or
+    platforms?
+  answer: '7'
+- question: How many years of hands-on experience in Java?
+  answer: '5'
+- question: How many years of managerial experience do you have, and what is the size of the
+    team you've led?
+  answer: 7, 4-5
+- question: If this role offers the option to work from a remote location, do you plan to
+    work remotely?
+  answer: Yes, I intend to work remotely.
+- question: If you selected a response to the prior question other than “none of the above,”
+    please confirm whether any of the following also applies to you.  Select all that apply.
+  answer: None of these apply to me
+- question: Name of the current firm you're part of?
+  answer: Deel
+- question: Please confirm receipt of the above linked Global Data Privacy Notice and US Arbitration
+    Agreement.
+  answer: Confirmed
+- question: 'Please confirm whether any of the below applies to you.  Select all that apply.
+
+
+    Note: This information will only be used to ensure compliance with U.S. sanctions and
+    export controls.'
+  answer: None of the above
+- question: Please describe your experience leading an IT Support team. Include the size of
+    the team, the number of users/sites supported, and your key responsibilities.
+  answer: Led team of 4-5 at Payoneer for building key features like security deposit invoice,
+    multiple contracts etc. 4-5 team size
+- question: This is a Hybrid role based in Bangalore. (2 days at office per week) Are you
+    currently based out of Bangalore?
+  answer: 'Yes'
+- question: This role is based in Bangalore. Which of the following describes you?
+  answer: I'm based in Bangalore
+- question: To your knowledge, were you referred to this position by a senior leader or decision‑maker
+    at a current or prospective institutional client, business partner, or vendor of Coinbase?
+  answer: 'Yes'
+- question: We need to fill this position immediately. How soon would you be available to
+    join?
+  answer: 7 days
+- question: What is the source of your right to work where this role is listed?
+  answer: Citizen or permanent resident where this role is listed
+- question: What is your current or previous job title?
+  answer: Software engineer
+- question: Which institute did you graduate from?
+  answer: MNNIT
+- question: Which of the following best describes how you use AI tools today?
+  answer: I am opposed to using AI tools in my workflow and prefer traditional/manual workflows.
+- question: Who is your current or previous employer?
+  answer: Deel
